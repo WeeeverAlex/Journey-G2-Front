@@ -1,4 +1,4 @@
-## Journey-G2-Front
+# Journey-G2-Front
 
 ### Nomes:
 Alexandre Wever, Sergio Ramella, Julia Karine, Enzo Quental e Eduardo Barros.

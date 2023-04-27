@@ -1,9 +1,9 @@
-#Journey-G2-Front
+## Journey-G2-Front
 
-## Nomes:
+### Nomes:
 Alexandre Wever, Sergio Ramella, Julia Karine, Enzo Quental e Eduardo Barros.
 
-## Descrição:
+### Descrição:
 
 O projeto consiste em um aplicativo baseado no uber, neste repositorio iremos fazer a parte do frontend do projeto.
 

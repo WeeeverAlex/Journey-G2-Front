@@ -46,7 +46,7 @@ function App() {
         <CardMedia
           component="img"
           height="140"
-          image="../public/bruno.jpg"
+          image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCv22eelbvP7GkaJItUZIASCzclne3su7q0Q&usqp=CAU"
           alt="Bruno"
         />
         <CardContent>
@@ -65,7 +65,7 @@ function App() {
         <CardMedia
           component="img"
           height="140"
-          image="../public/bruno.jpg"
+          image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCv22eelbvP7GkaJItUZIASCzclne3su7q0Q&usqp=CAU"
           alt="Bruno"
         />
         <CardContent>
@@ -85,7 +85,7 @@ function App() {
         <CardMedia
           component="img"
           height="140"
-          image="../public/bruno.jpg"
+          image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCv22eelbvP7GkaJItUZIASCzclne3su7q0Q&usqp=CAU"
           alt="Bruno"
         />
         <CardContent>
@@ -105,7 +105,7 @@ function App() {
         <CardMedia
           component="img"
           height="140"
-          image="../public/bruno.jpg"
+          image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCv22eelbvP7GkaJItUZIASCzclne3su7q0Q&usqp=CAU"
           alt="Bruno"
         />
         <CardContent>
@@ -125,7 +125,7 @@ function App() {
         <CardMedia
           component="img"
           height="140"
-          image="../public/bruno.jpg"
+          image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCv22eelbvP7GkaJItUZIASCzclne3su7q0Q&usqp=CAU"
           alt="Bruno"
         />
         <CardContent>

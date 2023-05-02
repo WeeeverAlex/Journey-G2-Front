@@ -51,7 +51,7 @@ function App() {
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            Júlia
+            Julia
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Desenvolvedora Full Stack

@@ -28,11 +28,6 @@ export default function () {
         
         </Button>
         
-        
-      <Tabs>
-        <Tab label="O projeto"/>
-        <Tab label="Nosso time"/>
-      </Tabs>
       <Link to='/viagem'>
       <Button sx={{gap:1,marginRight:5}} theme={theme} variant='contained'>
       <AddIcon></AddIcon>

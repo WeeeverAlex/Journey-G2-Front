@@ -1,6 +1,4 @@
 import './App.css'
-import {Button} from '@mui/material'
-import {Link} from 'react-router-dom'
 import Typography from '@mui/material/Typography';
 import React from 'react';
 import Card from '@mui/material/Card';
@@ -8,18 +6,10 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea } from '@mui/material';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import AppBar from '@mui/material/AppBar'
 import NavBar from './components/NavBar';
-import CssBaseline from '@mui/material/CssBaseline';
-import Container from '@mui/material/Container';
-
-
 
 
 function App() {
-  
-
   return (
     <>
     <Box sx={{height:'auto', width: 'auto',display:'flex',flexDirection:'column'}}>
@@ -34,12 +24,12 @@ function App() {
 
       </Typography>
       </Box>
-        
       <img  src="/taxi.png" alt="logo" className='logo' style={{width:'700px', height:'500px'}}/>
-        
       </Box>
-      
-        
+    
+      <Typography color='#77dd77' fontWeight='bold' variant='h3'style={{marginLeft: 80}}>
+      Nosso Grupo
+      </Typography>
         <Box display='flex' flexDirection='row' justifyContent='space-between' margin={10}>
           <Card sx={{ maxWidth: 345 }}>
       <CardActionArea>

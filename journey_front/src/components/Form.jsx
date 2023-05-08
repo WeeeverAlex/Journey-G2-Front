@@ -5,6 +5,10 @@ import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
 import Carregando from '../Carregando';
 import { useNavigate } from 'react-router-dom'
+import ResponsiveDateTimePickers from './DateTimePicker';
+import Map from './Maps';
+import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
 
 const theme = createTheme({
     palette: {
@@ -35,14 +39,16 @@ function Form() {
     <>
     {carregando ? <Carregando/> : 
       <div className='container'>
-        <form className='form'>
+        <Box sx={{display:'flex',flexDirection:'column',gap:2,padding:10,width:700}} className='form' component={Paper}>
             <input type="text" placeholder="Origem" className='origem'/>
             <input type="text" placeholder="Destino" className='destino'/>
+            <ResponsiveDateTimePickers></ResponsiveDateTimePickers>
+            <Map></Map>
             <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={() => {setCarregando(true); change()}}>
       <AddIcon></AddIcon>
         Buscar Viagem
       </Button>
-        </form>
+        </Box>
         </div>
 
     }

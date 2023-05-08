@@ -22,12 +22,12 @@ export default function () {
     return (
         <AppBar sx={{display:'flex',flexDirection:'row',justifyContent:'space-between',background:'white',padding:2}} >
         
-      
         <Button sx={{marginLeft:5}} theme={theme} variant='contained'>
         
           Journey
         
         </Button>
+        
         
       <Tabs>
         <Tab label="O projeto"/>

@@ -28,7 +28,6 @@ export default function () {
         
         </Button>
         
-      
       <Tabs>
         <Tab label="Nosso time"/>
         <Tab label="O projeto"/>
@@ -38,7 +37,6 @@ export default function () {
       <AddIcon></AddIcon>
         Começar viagem
       </Button>
- 
         </AppBar>
         
     )

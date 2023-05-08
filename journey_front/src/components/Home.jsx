@@ -10,7 +10,6 @@ function Home() {
         <Link to="/">   
             <Button variant="contained">App</Button>
         </Link>
-      
     </div>
   )
 }

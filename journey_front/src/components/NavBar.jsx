@@ -4,6 +4,7 @@ import ToolBar from '@mui/material/Toolbar';
 import { createTheme } from '@mui/material/styles';
 import { yellow,grey,green } from '@mui/material/colors';
 import AddIcon from '@mui/icons-material/Add';
+import TripPage from '../pages/TripPage';
 
 const theme = createTheme({
   palette: {
@@ -33,10 +34,12 @@ export default function () {
         <Tab label="O projeto"/>
         <Tab label="Nosso time"/>
       </Tabs>
+      <Link to="/trip" >
       <Button sx={{gap:1,marginRight:5}} theme={theme} variant='contained'>
       <AddIcon></AddIcon>
         Começar viagem
       </Button>
+      </Link>
         </AppBar>
         
     )

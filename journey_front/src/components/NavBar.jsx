@@ -8,13 +8,14 @@ import AddIcon from '@mui/icons-material/Add';
 const theme = createTheme({
   palette: {
     primary: {
-      main: yellow[500],
+      main: '#77dd77',
     },
     secondary: {
       main: '#fff',
     },
   },
 });
+
 
 export default function () {
 

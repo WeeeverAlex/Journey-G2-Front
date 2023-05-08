@@ -29,7 +29,7 @@ function App() {
       <Typography color='black' fontWeight='bold' variant='h3'>
         Viaje sem limites com a nossa empresa de viagens por aplicativo
       </Typography>
-      <Typography color='#fdd835' fontWeight='bold' variant='h3'>
+      <Typography color='#77dd77' fontWeight='bold' variant='h3'>
       a jornada começa aqui!
 
       </Typography>

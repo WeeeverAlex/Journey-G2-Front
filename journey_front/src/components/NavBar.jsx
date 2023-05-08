@@ -30,7 +30,6 @@ export default function () {
         </Button>
         
       <Tabs>
-        <Tab label="Nosso time"/>
         <Tab label="O projeto"/>
         <Tab label="Nosso time"/>
       </Tabs>

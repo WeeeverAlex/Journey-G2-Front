@@ -40,7 +40,7 @@ function Form() {
     {carregando ? <Carregando/> : 
       <div className='container'>
         <Box sx={{display:'flex',flexDirection:'column',gap:2,padding:10,width:700}} className='form' component={Paper}>
-            <Map></Map>
+            {/* <Map></Map> */}
             <ResponsiveDateTimePickers></ResponsiveDateTimePickers>
             <input type="text" placeholder="Origem" className='origem'/>
             <input type="text" placeholder="Destino" className='destino'/>

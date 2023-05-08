@@ -7,7 +7,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 
 export default function ResponsiveDateTimePickers() {
-  const [value, setValue] = React.useState(dayjs('2018-01-01T00:00:00.000Z'));
+  const [value, setValue] = React.useState(dayjs('2023-00-00T 00:00:00.000Z'));
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

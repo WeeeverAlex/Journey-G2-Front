@@ -5,6 +5,8 @@ import Home from './components/Home.jsx'
 import './index.css'
 import Viagem from './Viagem.jsx'
 import Carregando from './Carregando.jsx'
+import Motorista from './Motorista.jsx'
+
 
 import {
   createBrowserRouter,
@@ -31,7 +33,12 @@ const router = createBrowserRouter([
   {
     path: "carregando",
     element: <Carregando/>,
+  },
+  {
+    path: "motorista",
+    element: <Motorista/>,
   }
+  
   
 ]);
 

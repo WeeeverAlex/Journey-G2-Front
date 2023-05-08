@@ -30,7 +30,7 @@ function Form() {
 
   const change = () => {
     setTimeout(() => {
-        navigate('/')
+        navigate('/motorista')
     }, 3000);
     }
 

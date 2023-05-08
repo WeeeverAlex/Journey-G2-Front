@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import Home from './components/Home.jsx'
 import './index.css'
+import Viagem from './Viagem.jsx'
+import Carregando from './Carregando.jsx'
+
 import {
   createBrowserRouter,
   RouterProvider,
@@ -23,8 +26,13 @@ const router = createBrowserRouter([
   },
   {
     path: "viagem",
-    element: <viagem/>,
+    element: <Viagem/>,
   },
+  {
+    path: "carregando",
+    element: <Carregando/>,
+  }
+  
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(

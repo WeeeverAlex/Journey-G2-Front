@@ -43,7 +43,6 @@ const router = createBrowserRouter([
     element: <NovaViagem/>,
   }
   
-  
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(

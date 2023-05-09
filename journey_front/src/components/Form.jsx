@@ -26,18 +26,43 @@ const Input = styled(MuiInput)`
 `;
 
 const theme = createTheme({
-    palette: {
-      primary: {
-        main: '#77dd77',
-      },
-      secondary: {
-        main: '#fff',
-      },
+  palette: {
+    primary: {
+      main: '#77dd77',
     },
-  });
+    secondary: {
+      main: '#fff',
+    },
+  },
+});
 
 
-function Form() {
+  const handleClick = searchViag => {
+
+    const data = {
+        'origem': origem,
+        'destino': destino,
+        'idMotorista': 123,
+        'dataStart': 1,
+    }
+  
+    fetch('http://localhost:8080/viagem', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then(response => {
+        if (response.status === 200) {
+            alert('Viagens Encontradas: ')
+            setOpen(true)
+        }
+    }).catch(ex => {
+        alert('Erro ao achar viagens')
+        setOpen(true)
+    })
+  
+  }
 
   const [orig,setOrig] = useState("");
   const [dest,setDest] = useState("");
@@ -88,6 +113,9 @@ function Form() {
   const [carregando,setCarregando] = useState(false);
 
   const navigate = useNavigate()
+
+  const [origem, setOrigem] = useState();
+  const [destino, setDestino] = useState();
 
   const change = () => {
     setTimeout(() => {

@@ -6,6 +6,7 @@ import './index.css'
 import Viagem from './Viagem.jsx'
 import Carregando from './Carregando.jsx'
 import Motorista from './Motorista.jsx'
+import Lista from './Lista.jsx'
 
 
 import {
@@ -37,8 +38,11 @@ const router = createBrowserRouter([
   {
     path: "motorista",
     element: <Motorista/>,
+  },
+  {
+    path: "lista",
+    element: <Lista/>,
   }
-  
   
 ]);
 

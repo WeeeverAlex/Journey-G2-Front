@@ -21,38 +21,41 @@ const theme = createTheme({
   },
 });
 
-const handleClick = searchViag => {
-
-  const data = {
-      'origem': origem,
-      'destino': destino,
-      'idMotorista': 123,
-      'dataStart': 1,
-  }
-
-  fetch('http://localhost:8080/viagem', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-  }).then(response => {
-      if (response.status === 200) {
-          setMensagem('Viagens Encontradas: ')
-          setOpen(true)
-      }
-  }).catch(ex => {
-      setMensagem('Erro ao achar viagens')
-      setOpen(true)
-  })
-
-}
-
 function Form() {
+
+  const handleClick = searchViag => {
+
+    const data = {
+        'origem': origem,
+        'destino': destino,
+        'idMotorista': 123,
+        'dataStart': 1,
+    }
+  
+    fetch('http://localhost:8080/viagem', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then(response => {
+        if (response.status === 200) {
+            alert('Viagens Encontradas: ')
+            setOpen(true)
+        }
+    }).catch(ex => {
+        alert('Erro ao achar viagens')
+        setOpen(true)
+    })
+  
+  }
 
   const [carregando,setCarregando] = useState(false);
 
   const navigate = useNavigate()
+
+  const [origem, setOrigem] = useState();
+  const [destino, setDestino] = useState();
 
   const change = () => {
     setTimeout(() => {
@@ -72,7 +75,7 @@ function Form() {
             <input type="text" variant="standard" placeholder="Destino" className='destino' label='destino' onChange={searchViag => setDestino(searchViag.target.value)}/>
 
             {/* onClick={() => {setCarregando(true); change()}} */}
-            <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={handleClick} >
+            <Button theme={theme} variant='contained' className='buscando' onClick={handleClick} >
             <AddIcon></AddIcon>
               Buscar Viagem
             </Button>

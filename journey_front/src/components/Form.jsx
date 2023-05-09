@@ -37,32 +37,34 @@ const theme = createTheme({
 });
 
 
-  const handleClick = searchViag => {
+  // const handleClick = searchViag => {
 
-    const data = {
-        'origem': origem,
-        'destino': destino,
-        'idMotorista': 123,
-        'dataStart': 1,
-    }
+  //   const data = {
+  //       'origem': origem,
+  //       'destino': destino,
+  //       'idMotorista': 123,
+  //       'dataStart': 1,
+  //   }
   
-    fetch('http://localhost:8080/viagem', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    }).then(response => {
-        if (response.status === 200) {
-            alert('Viagens Encontradas: ')
-            setOpen(true)
-        }
-    }).catch(ex => {
-        alert('Erro ao achar viagens')
-        setOpen(true)
-    })
+  //   fetch('http://localhost:8080/viagem', {
+  //       method: 'POST',
+  //       headers: {
+  //           'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify(data)
+  //   }).then(response => {
+  //       if (response.status === 200) {
+  //           alert('Viagens Encontradas: ')
+  //           setOpen(true)
+  //       }
+  //   }).catch(ex => {
+  //       alert('Erro ao achar viagens')
+  //       setOpen(true)
+  //   })
   
-  }
+  // }
+
+  function Form() {
 
   const [orig,setOrig] = useState("");
   const [dest,setDest] = useState("");
@@ -112,10 +114,7 @@ const theme = createTheme({
 
   const [carregando,setCarregando] = useState(false);
 
-  const navigate = useNavigate()
-
-  const [origem, setOrigem] = useState();
-  const [destino, setDestino] = useState();
+  const navigate = useNavigate();
 
   const change = () => {
     setTimeout(() => {
@@ -144,9 +143,9 @@ const theme = createTheme({
     {carregando ? <Carregando/> : 
     <SnackbarProvider maxSnack={3}>
       <div className='container'>
+        <Stack direction="column" spacing={2} >
         <Box sx={{display:'flex',flexDirection:'column',gap:2,padding:10,width:700}} className='form' component={Paper}>
             {/* <Map></Map> */}
-            <Stack direction="row" spacing={2} >
             <LocalizationProvider dateAdapter={AdapterDayjs} >
             <DateTimePicker
             renderInput={(params) => <TextField {...params} />}
@@ -227,7 +226,6 @@ const theme = createTheme({
         </Grid>
       </Grid>
     </Box>
-            </Stack>
             <TextField value={orig} onChange={(e) => setOrig(e.target.value)}  color="success" id="Origem" label="Origem" variant="outlined" />
             <TextField value={dest} onChange={(e) => setDest(e.target.value)}  color="success" id="Destino" label="Destino" variant="outlined" />
             <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={() => {setCarregando(true); change();handleClickVariant('success')}}>
@@ -236,12 +234,13 @@ const theme = createTheme({
         Buscar Viagem
       </Button>
         </Box>
+        </Stack>
         </div>
         </SnackbarProvider>
     }
     </>
     
-  )
-}
+  )}
+
 
 export default Form;

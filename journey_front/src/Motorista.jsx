@@ -6,29 +6,33 @@ import {createTheme} from '@mui/material/styles';
 import { useState } from 'react';
 import Carregando from './Carregando';
 import {useQuery} from 'react-query';
-import { useLocation } from 'react-router-dom';
+import { useLocation,useNavigation } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import axios from "axios";
+import { useMutation } from "react-query";
 
-const api = "http://localhost:8080/viagem";
+// const api = "http://localhost:8080/viagem";
 
-const postData = async (dateTimeValue, orig,dest,timevalue,preco_total, data) => {
-    const response = await fetch(api, {
-        method: "POST",
-        body: JSON.stringify({
-        id: data[0].identifier,
-        dataStart: dateTimeValue,
-        origem: orig,
-        destino: dest,
-        horasTotal : timevalue,
-        precoTotal : preco_total,
-        status : "CONFIRMADO" 
-        }),
-        headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        },
-    });
+// const postData = async (dateTimeValue, orig,dest,timevalue,preco_total, data) => {
+//     const response = await fetch(api, {
+//         method: "POST",
+//         body: JSON.stringify({
+//         id: data.identifier,
+//         dataStart: dateTimeValue,
+//         origem: orig,
+//         destino: dest,
+//         horasTotal : timevalue,
+//         precoTotal : preco_total,
+//         status : "CONFIRMADO" 
+//         }),
+//         headers: {
+//         "Content-type": "application/json; charset=UTF-8",
+//         },
+//     });
 
-return response.json();
-};
+// return response.json();
+// };
 
 
 const theme = createTheme({
@@ -45,19 +49,23 @@ const theme = createTheme({
 
 function Motorista() {
     const location = useLocation();
+    const navigate = useNavigation();
     const [carregando,setCarregando] = useState(false);
-    const { dateTimeValue, sliderValue,timevalue, orig, dest } = location.state;
-    const precoTotal = data[0][3] * dest
+    const { datetimevalue, distvalue,timevalue, orig, dest } = location.state;
     const {data,isLoading,error} = useQuery("motorista", () => axios.get("http://localhost:8081/motorista").then((res) => res.data));
-
+    
     if (isLoading) {
         return <CircularProgress/>
     }
     if (error) {
         return <Alert severity="error">This is an error alert — check it out!</Alert>;
     }
+    const motorista_encontrado = data[0];
+    if (motorista_encontrado == null){
+        return <Alert severity="error">This is an error alert — check it out!</Alert>;
+    }
 
-  console.log(data[0])
+    const precoTotal = (motorista_encontrado.precoViagem * distvalue)
 
     const change = () => {
         setTimeout(() => {
@@ -65,19 +73,37 @@ function Motorista() {
         }, 3000);
         }
 
-    const { mutate, isError } = useMutation(postData, {
-        onSuccess: (sucessData) => {
-            console.log(sucessData);
-        },
-        });
+    // const { mutate } = useMutation(postData, {
+    //     onSuccess: () => {
+    //         setCarregando(false);
+    //     },
+    //     onError: (error) => {
+    //         setCarregando(false);
+    //     }
+    //     });
 
-        if (isLoading) {
-        return <CircularProgress/>
-        }
-        if (isError) {
-        return <Alert severity="error">This is an error alert — check it out!</Alert>;
-        }
     
+
+    // const handleConfirmClick = async () => {
+    //     setCarregando(true);
+    //     change();
+
+    //     try {
+    //         mutate({ 
+    //             dateTimeValue, 
+    //             orig,
+    //             dest,
+    //             timevalue,
+    //             preco_total: precoTotal,
+    //             data
+    //         });
+    //     } catch (e) {
+    //         // Tratamento de erro aqui
+    //     }
+    // };
+    console.log(motorista_encontrado.precoViagem * distvalue)
+    console.log(distvalue)
+    console.log(datetimevalue)
     
     return (
         <>
@@ -86,46 +112,49 @@ function Motorista() {
         {carregando || !data ? <Carregando/> : 
         
         <div className='teste'>
-        <Box component={Paper} sx={{padding:10,gap:10}}>
-        <Typography variant='h4'>
-        Nome: {data[0][0]}
+        <Box component={Paper} sx={{padding:10}}>
+        <Typography variant='h5'>
+        Nome: {motorista_encontrado.name}
         </Typography>
-        <Typography variant='h4'>
-        Placa: {data[0][1]}
+        <Typography variant='h5'>
+        Placa: {motorista_encontrado.placa}
         </Typography>
-        <Typography variant='h4'>
-        Carro: {data[0][2]}
+        <Typography variant='h5'>
+        Carro: {motorista_encontrado.modelo}
         </Typography>
-        <Typography variant='h4'>
-        Identificador: {data[0][4]}
+        <Typography variant='h5'>
+        Identificador: {motorista_encontrado.identifier}
         </Typography>
-        <Typography variant='h4'>
-        Ocupação: {data[0][5]}
+        <Typography variant='h5'>
+        Ocupação: {motorista_encontrado.ocupacao}
         </Typography>
-        <Typography variant='h4'>
+        <Typography variant='h5'>
         Origem: {orig}
         </Typography>
-        <Typography variant='h4'>
+        <Typography variant='h5'>
         Destino: {dest}
         </Typography>
-        <Typography variant='h4'>
-        Data e Hora : {dateTimeValue}
+        <Typography variant='h5'>
+        Data Da Viagem : {datetimevalue.$D}/{datetimevalue.$W}/{datetimevalue.$y}
         </Typography>
-        <Typography variant='h4'>
-        Preço: {precoTotal}
+        <Typography variant='h5'>
+        Hora Da Viagem : {datetimevalue.$H}:{datetimevalue.$m}
         </Typography>
-        <Typography variant='h4'>
-        Tempo: {timevalue}
+        <Typography variant='h5'>
+        Preço: {precoTotal} R$   
         </Typography>
-        <Typography variant='h4'>
-        Distância: {sliderValue}km
+        <Typography variant='h5'>
+        Tempo: {timevalue} min
         </Typography>
-        <Typography variant='h4'>
-        Status: {data[0][6]}
+        <Typography variant='h5'>
+        Distância: {distvalue} km
+        </Typography>
+        <Typography variant='h5'>
+        Status: {motorista_encontrado.status}
         </Typography>
         
 
-        <Button theme={theme} variant='contained' onClick={({dateTimeValue, orig,dest,timevalue,preco_total, data}) => {setCarregando(true); change();mutate({ dateTimeValue, orig,dest,timevalue,preco_total, data})}}>
+        <Button theme={theme} variant='contained' onClick={() => {setCarregando(true); change();handleConfirmClick();}}>
         Confirmar
         </Button>
 

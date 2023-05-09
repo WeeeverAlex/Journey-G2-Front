@@ -7,11 +7,15 @@ import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea } from '@mui/material';
 import Box from '@mui/material/Box';
 import NavBar from './components/NavBar';
+import { Outlet } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <>
+    
     <Box sx={{height:'auto', width: 'auto',display:'flex',flexDirection:'column'}}>
       <NavBar/>
       <Box sx={{display:'flex',flexDirection:'row',margin:30, }}>

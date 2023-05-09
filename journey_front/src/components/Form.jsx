@@ -40,8 +40,10 @@ function Form() {
         body: JSON.stringify(data)
     }).then(response => {
         if (response.status === 200) {
-            alert('Viagens Encontradas: ')
-            setOpen(true)
+          setCarregando(true);
+          setTimeout(() => {
+              navigate('/motorista')
+          }, 3000);
         }
     }).catch(ex => {
         alert('Erro ao achar viagens')
@@ -56,13 +58,6 @@ function Form() {
 
   const [origem, setOrigem] = useState();
   const [destino, setDestino] = useState();
-
-  const change = () => {
-    setTimeout(() => {
-        navigate('/motorista')
-    }, 3000);
-    }
-
 
   return (
     <>

@@ -13,7 +13,6 @@ import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import { SnackbarProvider, useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -70,7 +69,7 @@ const theme = createTheme({
   const [dest,setDest] = useState("");
 
   const [distvalue, setDistValue] = React.useState(30);
-  const [timevalue, setTimeValue] = React.useState(30);
+  
 
   const handleSliderDistChange = (event, newValue) => {
     setDistValue(newValue);
@@ -91,25 +90,7 @@ const theme = createTheme({
       
     }
   };
-  const handleSliderTimeChange = (event, newValue) => {
-    
-    setTimeValue(newValue);
-  };
-
-  const handleInputTimeChange = (event) => {
-    
-    setTimeValue(event.target.value === '' ? '' : Number(event.target.value));
-  };
-
-  const handleTimeBlur = () => {
-    if (value < 0) {
-      
-      setTimeValue(0);
-    } else if (value > 100) {
-      
-      setTimeValue(100);
-    }
-  };
+  
   const [datetimevalue, setDateTimeValue] = React.useState(dayjs('2023-00-00T 00:00:00.000Z'));
 
   const [carregando,setCarregando] = useState(false);
@@ -122,26 +103,20 @@ const theme = createTheme({
           state :{
             datetimevalue,
             distvalue,
-            timevalue,
             orig,
             dest
           }
         })
-    }, 3000);
+    }, 1000);
     }
 
-  const { enqueueSnackbar } = useSnackbar();
-  const handleClickVariant = (variant) => () => {
-    // variant could be success, error, warning, info, or default
-    enqueueSnackbar('Motorista Encontrado', { variant });
-  };
 
   
 
   return (
     <>
     {carregando ? <Carregando/> : 
-    <SnackbarProvider maxSnack={3}>
+    
       <div className='container'>
         <Stack direction="column" spacing={2} >
         <Box sx={{display:'flex',flexDirection:'column',gap:2,padding:10,width:700}} className='form' component={Paper}>
@@ -193,42 +168,9 @@ const theme = createTheme({
         </Grid>
       </Grid>
     </Box>
-    <Box sx={{ width: 250 }}>
-      <Typography id="input-slider" gutterBottom>
-        Tempo da Viagem
-      </Typography>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item>
-          <NavigationIcon />
-        </Grid>
-        <Grid item xs>
-          <Slider
-            value={typeof value === 'number' ? value : 0}
-            onChange={handleSliderTimeChange}
-            aria-labelledby="input-slider"
-            theme={theme}
-          />
-        </Grid>
-        <Grid item>
-          <Input
-            value={timevalue}
-            size="small"
-            onChange={handleInputTimeChange}
-            onBlur={handleTimeBlur}
-            inputProps={{
-              step: 10,
-              min: 0,
-              max: 100,
-              type: 'number',
-              'aria-labelledby': 'input-slider',
-            }}
-          />
-        </Grid>
-      </Grid>
-    </Box>
-            <TextField value={orig} onChange={(e) => setOrig(e.target.value)}  color="success" id="Origem" label="Origem" variant="outlined" />
-            <TextField value={dest} onChange={(e) => setDest(e.target.value)}  color="success" id="Destino" label="Destino" variant="outlined" />
-            <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={() => {setCarregando(true); change();handleClickVariant('success')}}>
+      <TextField value={orig} onChange={(e) => setOrig(e.target.value)}  color="success" id="Origem" label="Origem" variant="outlined" />
+      <TextField value={dest} onChange={(e) => setDest(e.target.value)}  color="success" id="Destino" label="Destino" variant="outlined" />
+      <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={() => {setCarregando(true); change();handleClickVariant('success')}}>
 
       <AddIcon></AddIcon>
         Buscar Viagem
@@ -236,7 +178,7 @@ const theme = createTheme({
         </Box>
         </Stack>
         </div>
-        </SnackbarProvider>
+        
     }
     </>
     

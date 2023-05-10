@@ -15,7 +15,7 @@ function Lista() {
         }
       
         fetch('http://localhost:8080/viagem', {
-            method: 'POST',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },

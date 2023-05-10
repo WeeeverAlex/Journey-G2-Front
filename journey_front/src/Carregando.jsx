@@ -1,15 +1,27 @@
 import './Carregando.css'
 import React from 'react';
+import { Backdrop } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 function Carregando() {
   
+  const [open, setOpen] = React.useState(true);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <>
     <div className='teste'>
-      <h1>Carregando...</h1>
-      <img src="/bussula.png" className='bussula'/>
+    <Backdrop
+  sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+  open={open}
+  onClick={handleClose}
+>
+  <CircularProgress color="inherit" />
+</Backdrop>
     </div>
          
     </>

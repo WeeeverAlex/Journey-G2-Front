@@ -2,13 +2,28 @@ import {Button} from '@mui/material'
 import React from 'react';
 import {createTheme} from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
+import NavigationIcon from '@mui/icons-material/Navigation';
 import { useState } from 'react';
 import Carregando from '../Carregando';
 import { useNavigate } from 'react-router-dom'
-import ResponsiveDateTimePickers from './DateTimePicker';
-import Map from './Maps';
 import Box from '@mui/material/Box'
+import Slider from '@mui/material/Slider'
 import Paper from '@mui/material/Paper'
+import Grid from '@mui/material/Grid'
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import { SnackbarProvider, useSnackbar } from 'notistack';
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { styled } from '@mui/material/styles';
+import MuiInput from '@mui/material/Input';
+
+const Input = styled(MuiInput)`
+  width: 42px;
+`;
 
 const theme = createTheme({
   palette: {
@@ -21,71 +36,211 @@ const theme = createTheme({
   },
 });
 
-function Form() {
 
-  const handleClick = searchViag => {
+  // const handleClick = searchViag => {
 
-    const data = {
-        'origem': origem,
-        'destino': destino,
-        'idMotorista': 123,
-        'dataStart': 1,
+  //   const data = {
+  //       'origem': origem,
+  //       'destino': destino,
+  //       'idMotorista': 123,
+  //       'dataStart': 1,
+  //   }
+  
+  //   fetch('http://localhost:8080/viagem', {
+  //       method: 'POST',
+  //       headers: {
+  //           'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify(data)
+  //   }).then(response => {
+  //       if (response.status === 200) {
+  //           alert('Viagens Encontradas: ')
+  //           setOpen(true)
+  //       }
+  //   }).catch(ex => {
+  //       alert('Erro ao achar viagens')
+  //       setOpen(true)
+  //   })
+  
+  // }
+
+  function Form() {
+
+  const [orig,setOrig] = useState("");
+  const [dest,setDest] = useState("");
+
+  const [distvalue, setDistValue] = React.useState(30);
+  const [timevalue, setTimeValue] = React.useState(30);
+
+  const handleSliderDistChange = (event, newValue) => {
+    setDistValue(newValue);
+    
+  };
+
+  const handleInputDistChange = (event) => {
+    setDistValue(event.target.value === '' ? '' : Number(event.target.value));
+    
+  };
+
+  const handleDistBlur = () => {
+    if (value < 0) {
+      setDistValue(0);
+      
+    } else if (value > 100) {
+      setDistValue(100);
+      
     }
-  
-    fetch('http://localhost:8080/viagem', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    }).then(response => {
-        if (response.status === 200) {
-            alert('Viagens Encontradas: ')
-            setOpen(true)
-        }
-    }).catch(ex => {
-        alert('Erro ao achar viagens')
-        setOpen(true)
-    })
-  
-  }
+  };
+  const handleSliderTimeChange = (event, newValue) => {
+    
+    setTimeValue(newValue);
+  };
+
+  const handleInputTimeChange = (event) => {
+    
+    setTimeValue(event.target.value === '' ? '' : Number(event.target.value));
+  };
+
+  const handleTimeBlur = () => {
+    if (value < 0) {
+      
+      setTimeValue(0);
+    } else if (value > 100) {
+      
+      setTimeValue(100);
+    }
+  };
+  const [datetimevalue, setDateTimeValue] = React.useState(dayjs('2023-00-00T 00:00:00.000Z'));
 
   const [carregando,setCarregando] = useState(false);
 
-  const navigate = useNavigate()
-
-  const [origem, setOrigem] = useState();
-  const [destino, setDestino] = useState();
+  const navigate = useNavigate();
 
   const change = () => {
     setTimeout(() => {
-        navigate('/motorista')
+        navigate('/motorista',{
+          state :{
+            datetimevalue,
+            distvalue,
+            timevalue,
+            orig,
+            dest
+          }
+        })
     }, 3000);
     }
 
+  const { enqueueSnackbar } = useSnackbar();
+  const handleClickVariant = (variant) => () => {
+    // variant could be success, error, warning, info, or default
+    enqueueSnackbar('Motorista Encontrado', { variant });
+  };
+
+  
 
   return (
     <>
     {carregando ? <Carregando/> : 
+    <SnackbarProvider maxSnack={3}>
       <div className='container'>
+        <Stack direction="column" spacing={2} >
         <Box sx={{display:'flex',flexDirection:'column',gap:2,padding:10,width:700}} className='form' component={Paper}>
             {/* <Map></Map> */}
-            <ResponsiveDateTimePickers></ResponsiveDateTimePickers>
-            <input type="text" variant="standard" placeholder="Origem" className='origem' label='origem' onChange={searchViag => setOrigem(searchViag.target.value)}/>
-            <input type="text" variant="standard" placeholder="Destino" className='destino' label='destino' onChange={searchViag => setDestino(searchViag.target.value)}/>
+            <LocalizationProvider dateAdapter={AdapterDayjs} >
+            <DateTimePicker
+            renderInput={(params) => <TextField {...params} />}
+            value={datetimevalue}
+            onChange={(newValue) => {
+            setDateTimeValue(newValue);
+          }}
+          disablePast
+          label="Data e Hora"
+          inputFormat="DD/MM/YYYY HH:mm"
+          
+        />
+      
+    </LocalizationProvider>
+    <Box sx={{ width: 250 }}>
+      <Typography id="input-slider" gutterBottom>
+        Distancia
+      </Typography>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item>
+          <NavigationIcon />
+        </Grid>
+        <Grid item xs>
+          <Slider
+            value={typeof value === 'number' ? value : 0}
+            onChange={handleSliderDistChange}
+            aria-labelledby="input-slider"
+            theme={theme}
+          />
+        </Grid>
+        <Grid item>
+          <Input
+            value={distvalue}
+            size="small"
+            onChange={handleInputDistChange}
+            onBlur={handleDistBlur}
+            inputProps={{
+              step: 10,
+              min: 0,
+              max: 100,
+              type: 'number',
+              'aria-labelledby': 'input-slider',
+            }}
+          />
+        </Grid>
+      </Grid>
+    </Box>
+    <Box sx={{ width: 250 }}>
+      <Typography id="input-slider" gutterBottom>
+        Tempo da Viagem
+      </Typography>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item>
+          <NavigationIcon />
+        </Grid>
+        <Grid item xs>
+          <Slider
+            value={typeof value === 'number' ? value : 0}
+            onChange={handleSliderTimeChange}
+            aria-labelledby="input-slider"
+            theme={theme}
+          />
+        </Grid>
+        <Grid item>
+          <Input
+            value={timevalue}
+            size="small"
+            onChange={handleInputTimeChange}
+            onBlur={handleTimeBlur}
+            inputProps={{
+              step: 10,
+              min: 0,
+              max: 100,
+              type: 'number',
+              'aria-labelledby': 'input-slider',
+            }}
+          />
+        </Grid>
+      </Grid>
+    </Box>
+            <TextField value={orig} onChange={(e) => setOrig(e.target.value)}  color="success" id="Origem" label="Origem" variant="outlined" />
+            <TextField value={dest} onChange={(e) => setDest(e.target.value)}  color="success" id="Destino" label="Destino" variant="outlined" />
+            <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={() => {setCarregando(true); change();handleClickVariant('success')}}>
 
-            {/* onClick={() => {setCarregando(true); change()}} */}
-            <Button theme={theme} variant='contained' className='buscando' onClick={handleClick} >
-            <AddIcon></AddIcon>
-              Buscar Viagem
-            </Button>
+      <AddIcon></AddIcon>
+        Buscar Viagem
+      </Button>
         </Box>
+        </Stack>
         </div>
-
+        </SnackbarProvider>
     }
     </>
     
-  )
-}
+  )}
 
-export default Form
+
+export default Form;

@@ -6,14 +6,16 @@ import './index.css'
 import Viagem from './Viagem.jsx'
 import Carregando from './Carregando.jsx'
 import Motorista from './Motorista.jsx'
-import Lista from './Lista.jsx'
+import NovaViagem from './NovaViagem.jsx'
+import { Outlet } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
+const queryClient = new QueryClient();
 
 import {
   createBrowserRouter,
   RouterProvider,
-  Route,
-  Link,
+ 
 } from "react-router-dom";
 
 
@@ -40,14 +42,17 @@ const router = createBrowserRouter([
     element: <Motorista/>,
   },
   {
-    path: "lista",
-    element: <Lista/>,
+    path: "novaviagem",
+    element: <NovaViagem/>,
   }
   
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
+  <QueryClientProvider client={queryClient}>
+    <Outlet/>
   <React.StrictMode>
     <RouterProvider router={router}/>
-  </React.StrictMode>,
+  </React.StrictMode>
+  </QueryClientProvider>
 )

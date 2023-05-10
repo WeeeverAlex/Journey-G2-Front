@@ -10,7 +10,6 @@ import { useLocation,useNavigation } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import axios from "axios";
-import { useMutation } from "react-query";
 
 // const api = "http://localhost:8080/viagem";
 

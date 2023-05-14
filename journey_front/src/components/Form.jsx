@@ -71,7 +71,7 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     const [mutateError,setMutateError] = useState("");
     
     const { data, isLoading, error } = useQuery("motorista", () => 
-    axios.get("http://localhost:8080/motorista").then((res) => res.data)
+    axios.get("http://localhost:8080/motorista/available").then((res) => res.data)
     );
     
     const navigate = useNavigate();
@@ -284,7 +284,7 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     
     <>
         <DialogTitle id="responsive-dialog-title">
-            { directions ? "Motorista Encontrado" : "Dados inválidos"}
+            {!data && directions ? "Motorista não encontrado" : directions && data ? "Motorista Encontrado" : "Dados inválidos"}
         </DialogTitle>
         <DialogContent>
             <DialogContentText>
@@ -334,7 +334,7 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
               <CancelIcon></CancelIcon>
                 Cancelar
             </Button>
-            {directions  &&
+            {directions && data  &&
             <Button theme={theme} onClick={handleConfirmClick} autoFocus>
             <CheckIcon></CheckIcon>
                 Confirmar

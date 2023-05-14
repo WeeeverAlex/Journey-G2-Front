@@ -12,6 +12,9 @@ import axios from "axios";
 import {useQuery,useMutation} from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import LocalTaxiIcon from '@mui/icons-material/LocalTaxi';
+import CheckIcon from '@mui/icons-material/Check';
+import CancelIcon from '@mui/icons-material/Cancel';
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 
 const libraries = ["places"];
 const center = {
@@ -23,8 +26,8 @@ const mapContainerStyle = {
   height: "80vh",
 };
 
-const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identifier}) => {
-  console.log(dataStart,orig,dest,time,preco_total,identifier)
+const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, preco_total, identifier}) => {
+  
   const response = await fetch("http://localhost:8081/viagem", {
     method: "POST",
     body: JSON.stringify({
@@ -32,7 +35,8 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
       dataStart: dataStart,
       origem: orig,
       destino: dest,
-      horasStart : time,
+      horasStart : horasStart,
+      tempoTotal: tempoTotal,
       precoTotal : preco_total,
       status : "CONFIRMADO"
     }),
@@ -45,11 +49,14 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
 };
 
   function Form() {
+
+    
     const [Loading,setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [originText,setOriginText] = useState("");
     const [dest,setDestText] = useState("");
+    const [time,setTime] = useState("");
     
     const [origin, setOrigin] = useState("");
     const [destination, setDestination] = useState("");
@@ -81,9 +88,11 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
     
     const [loadingDialog, setLoadingDialog] = useState(false);
 
+    const navigate = useNavigate();
+
     const handleClickOpen = () => {
       setLoadingDialog(true);  // Inicia o loading
-      console.log(originText,dest)
+      
       setTimeout(() => {
         // Aqui você pode colocar o código que era executado anteriormente em handleClickOpen
         if (error) return <Typography>Erro ao buscar motoristas</Typography>;
@@ -110,17 +119,18 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
     
     const onLoadOrigin = (autocomplete) => {
       autocompleteOrigin.current = autocomplete;
-      setOriginText(autocompleteDestination)
+      
     };
   
     const onLoadDestination = (autocomplete) => {
       autocompleteDestination.current = autocomplete;
-      setDestText(autocompleteDestination)
+      
     };
   
     const onPlaceChangedOrigin = () => {
       if (autocompleteOrigin.current) {
         const place = autocompleteOrigin.current.getPlace();
+        
         setOrigin(place.geometry.location);
       }
     };
@@ -128,6 +138,7 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
     const onPlaceChangedDestination = () => {
       if (autocompleteDestination.current) {
         const place = autocompleteDestination.current.getPlace();
+        
         setDestination(place.geometry.location);
       }
     };
@@ -137,6 +148,9 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
         if (response.status === "OK") {
           setDirections(response);
           setDistance(response.routes[0].legs[0].distance.text);
+          setDestText(response.routes[0].legs[0].end_address);
+          setOriginText(response.routes[0].legs[0].start_address);
+          setTime(response.routes[0].legs[0].duration.text);
         } else {
           console.log("response: ", response);
         }
@@ -145,29 +159,30 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
   
     if (loadError) return "Erro ao carregar mapas";
     if (!isLoaded) return "Carregando mapas";
-
- 
   
   const change = () => {
+    setLoading(true);
     setTimeout(() => {
-        useNavigate('/novaviagem'),{
+        navigate('/novaviagem'),{
           state :{
-            identifier: data[0].identifier
+            motoristaId: data[0].identifier,
+            
           }
     }
-    }, 1000);
+    }, 2000);
     }
   const handleConfirmClick = async () => {
     setLoading(true);
     change();
-
+  
     try {
         mutate({ 
             dataStart : `${dayjs().format('YYYY-MM-DD')}`,
             orig : `${originText}`,
             dest : `${dest}`,
-            time : `${dayjs().format('HH:mm:ss')}`,
-            preco_total: `${parseFloat(distance.match(/\d+(\.\d+)?/)[0]) * data[0].precoViagem}` ,
+            horasStart : `${dayjs().format('HH:mm:ss')}`,
+            tempoTotal : `${time}`,
+            preco_total: parseFloat(distance.match(/\d+(\.\d+)?/)[0]) * data[0].precoViagem ,
             identifier : `${data[0].identifier}`
         });
     } catch (e) {
@@ -238,10 +253,6 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
         onClose={handleClose}
         aria-labelledby="responsive-dialog-title"
       >
-   {isLoading && <Carregando />}
-    {error && <Typography>Erro ao buscar motoristas</Typography>}
-    
-    {data === null && <Typography>Não há motoristas disponíveis no momento</Typography>}
     {data && distance &&
     <>
         <DialogTitle id="responsive-dialog-title">
@@ -249,6 +260,10 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
         </DialogTitle>
         <DialogContent>
             <DialogContentText>
+   {isLoading && <Carregando />}
+    {error && <Typography>Erro ao buscar motoristas</Typography>}
+    
+    {data === null && <Typography>Não há motoristas disponíveis no momento</Typography>}
                 <Stack direction="column" spacing={3}>
                 <Stack direction="row" spacing={1}>
                 <AccountCircleIcon >
@@ -273,15 +288,25 @@ const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identif
                   {parseFloat(distance.match(/\d+(\.\d+)?/)[0]) * data[0].precoViagem} 
                     </Typography>
                 </Stack>
+
+                <Stack direction="row" spacing={1}>
+                <AccessTimeFilledIcon >
+                </AccessTimeFilledIcon>
+                <Typography>
+                  {time} 
+                    </Typography>
+                </Stack>
                     
                 </Stack>
             </DialogContentText>
         </DialogContent>
         <DialogActions>
-            <Button autoFocus onClick={handleClose}>
+            <Button theme={theme} autoFocus onClick={handleClose}>
+              <CancelIcon></CancelIcon>
                 Cancelar
             </Button>
-            <Button onClick={handleConfirmClick} autoFocus>
+            <Button theme={theme} onClick={handleConfirmClick} autoFocus>
+            <CheckIcon></CheckIcon>
                 Confirmar
             </Button>
         </DialogActions>

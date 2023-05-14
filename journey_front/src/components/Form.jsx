@@ -1,4 +1,4 @@
-import {Button, Typography, Stack, TextField,Paper,Box,useMediaQuery,Dialog,DialogActions,DialogContent,DialogTitle,DialogContentText,} from '@mui/material'
+import {Button, Typography, Stack, TextField,Paper,Box,useMediaQuery,Dialog,DialogActions,DialogContent,DialogTitle,DialogContentText,Snackbar,Alert} from '@mui/material'
 import React from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { useState, useEffect, useRef } from 'react';
@@ -15,6 +15,7 @@ import LocalTaxiIcon from '@mui/icons-material/LocalTaxi';
 import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const libraries = ["places"];
 const center = {
@@ -25,6 +26,10 @@ const mapContainerStyle = {
   width: "100%",
   height: "80vh",
 };
+
+const AlertSnack = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, preco_total, identifier}) => {
   
@@ -57,22 +62,42 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     const [originText,setOriginText] = useState("");
     const [dest,setDestText] = useState("");
     const [time,setTime] = useState("");
+    const [alertOpen,setAlertOpen] = useState(false);
     
     const [origin, setOrigin] = useState("");
     const [destination, setDestination] = useState("");
     const [directions, setDirections] = useState(null);
     const [distance, setDistance] = useState(null);
+    const [mutateError,setMutateError] = useState("");
     
     const { data, isLoading, error } = useQuery("motorista", () => 
     axios.get("http://localhost:8080/motorista").then((res) => res.data)
     );
     
+    const navigate = useNavigate();
+    const change = () => {
+      setOpen(false);
+      setLoadingDialog(true);
+      setTimeout(() => {
+          navigate('/novaviagem'),{
+            state :{
+              motoristaId: data[0].identifier,
+              
+            }
+      }
+      }, 2000);
+      }
+    
     const { mutate } = useMutation(CadastraViagem, {
       onSuccess: () => {
         setLoading(false);
+        change();
       },
       onError: (error) => {
         setLoading(false);
+        setAlertOpen(true);
+        setMutateError(error.message);
+      console.log(error);
       }
     });
     
@@ -88,26 +113,29 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     
     const [loadingDialog, setLoadingDialog] = useState(false);
 
-    const navigate = useNavigate();
 
     const handleClickOpen = () => {
       setLoadingDialog(true);  // Inicia o loading
       
       setTimeout(() => {
         // Aqui você pode colocar o código que era executado anteriormente em handleClickOpen
-        if (error) return <Typography>Erro ao buscar motoristas</Typography>;
-        if (data === undefined) return <Typography>Não há motoristas disponíveis no momento</Typography>;
+        
       
         setOpen(true);
 
         setLoadingDialog(false);  // Finaliza o loading após 2 segundos
-      }, 1000);
+      }, 500);
     };
     
   
     const handleClose = () => {
       setOpen(false);
+
     };
+
+    const handleAlertClose = () => {
+      setAlertOpen(false);
+    }
       
   
     useEffect(() => {
@@ -160,20 +188,10 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     if (loadError) return "Erro ao carregar mapas";
     if (!isLoaded) return "Carregando mapas";
   
-  const change = () => {
-    setLoading(true);
-    setTimeout(() => {
-        navigate('/novaviagem'),{
-          state :{
-            motoristaId: data[0].identifier,
-            
-          }
-    }
-    }, 2000);
-    }
+  
   const handleConfirmClick = async () => {
-    setLoading(true);
-    change();
+    
+    
   
     try {
         mutate({ 
@@ -197,20 +215,28 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
      
     {Loading ? <Carregando></Carregando>:
       <div className='container'>
+      {mutateError && 
+      <Snackbar open={alertOpen} autoHideDuration={3000} onClose={handleAlertClose}>
+            <Alert severity="error"><Typography>
+              Erro ao se conectar com o servidor
+            </Typography></Alert>
+      </Snackbar>}
         <Stack direction="column" spacing={2} >
         <Box sx={{display:'flex',flexDirection:'column',gap:5,padding:10,width:750}} className='form' component={Paper}>
-        <Stack direction="row" spacing={10}  >
+        <Stack sx={{alignItems:"center"}} direction="row" spacing={5}  >
         <Autocomplete
           onLoad={onLoadOrigin}
           onPlaceChanged={onPlaceChangedOrigin}
           fields={["geometry.location", "place_id"]}
         >
           <TextField
-          
-             placeholder='Digite um endereço de origem' variant="outlined"
+            required
+            label="Endereço de origem"
+            variant="outlined"
             
           />
         </Autocomplete>
+        <ArrowForwardIcon sx={{color:'#77dd77'}} fontSize='large' ></ArrowForwardIcon>
 
         <Autocomplete
 
@@ -219,13 +245,14 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
           fields={["geometry.location", "place_id"]}
         >
           <TextField
-          
-          
-            variant="outlined" placeholder='Digite um endereço de destino'
+          label="Endereço de destino"
+        
+          required
+            variant="outlined" 
           />
         </Autocomplete>
         </Stack>
-        <GoogleMap id="map" mapContainerStyle={mapContainerStyle} zoom={10} center={center}>
+        <GoogleMap id="map" mapContainerStyle={mapContainerStyle} zoom={11} center={center}>
         {origin !== "" && destination !== "" && (
           <DirectionsService
             options={{
@@ -247,26 +274,28 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
       </Button>
       
        {loadingDialog && <Carregando />}
+
       <Dialog
         fullScreen={fullScreen}
         open={open}
         onClose={handleClose}
         aria-labelledby="responsive-dialog-title"
       >
-    {data && distance &&
+    
     <>
         <DialogTitle id="responsive-dialog-title">
-            {"Motorista Encontrado"}
+            { directions ? "Motorista Encontrado" : "Dados inválidos"}
         </DialogTitle>
         <DialogContent>
             <DialogContentText>
    {isLoading && <Carregando />}
     {error && <Typography>Erro ao buscar motoristas</Typography>}
+    {!directions || !distance ? <Typography>Digite os endereços de origem e destino para poder buscar por um motorista</Typography> :
     
-    {data === null && <Typography>Não há motoristas disponíveis no momento</Typography>}
+    !data ? <Typography>Não há motoristas disponíveis no momento</Typography> :
                 <Stack direction="column" spacing={3}>
                 <Stack direction="row" spacing={1}>
-                <AccountCircleIcon >
+                <AccountCircleIcon>
                 </AccountCircleIcon>
                 <Typography>
                         {data[0].name}
@@ -285,7 +314,7 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
                 <AttachMoneyIcon >
                 </AttachMoneyIcon>
                 <Typography>
-                  {parseFloat(distance.match(/\d+(\.\d+)?/)[0]) * data[0].precoViagem} 
+                  {distance ? parseFloat(distance.match(/\d+(\.\d+)?/)[0]) * data[0].precoViagem:0} 
                     </Typography>
                 </Stack>
 
@@ -297,7 +326,7 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
                     </Typography>
                 </Stack>
                     
-                </Stack>
+                </Stack>}
             </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -305,12 +334,13 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
               <CancelIcon></CancelIcon>
                 Cancelar
             </Button>
+            {directions  &&
             <Button theme={theme} onClick={handleConfirmClick} autoFocus>
             <CheckIcon></CheckIcon>
                 Confirmar
-            </Button>
+            </Button>}
         </DialogActions>
-    </>}
+    </>
       </Dialog> 
         </Box>
         </Stack>

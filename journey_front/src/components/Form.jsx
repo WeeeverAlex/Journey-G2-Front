@@ -1,184 +1,295 @@
-import {Button} from '@mui/material'
+import {Button, Typography, Stack, TextField,Paper,Box,useMediaQuery,Dialog,DialogActions,DialogContent,DialogTitle,DialogContentText,} from '@mui/material'
 import React from 'react';
-import {createTheme} from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
-import NavigationIcon from '@mui/icons-material/Navigation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Carregando from '../Carregando';
-import { useNavigate } from 'react-router-dom'
-import Box from '@mui/material/Box'
-import Slider from '@mui/material/Slider'
-import Paper from '@mui/material/Paper'
-import Grid from '@mui/material/Grid'
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
 import dayjs from 'dayjs';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { styled } from '@mui/material/styles';
-import MuiInput from '@mui/material/Input';
+import { useLoadScript, Autocomplete,GoogleMap, DirectionsService, DirectionsRenderer } from "@react-google-maps/api";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import theme from '../theme/theme';
+import axios from "axios";
+import {useQuery,useMutation} from 'react-query';
+import { useNavigate } from 'react-router-dom';
+import LocalTaxiIcon from '@mui/icons-material/LocalTaxi';
 
-const Input = styled(MuiInput)`
-  width: 42px;
-`;
+const libraries = ["places"];
+const center = {
+  lat: -23.5505,
+  lng: -46.6333,
+};
+const mapContainerStyle = {
+  width: "100%",
+  height: "80vh",
+};
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#77dd77',
+const CadastraViagem = async ({dataStart, orig, dest, time, preco_total, identifier}) => {
+  console.log(dataStart,orig,dest,time,preco_total,identifier)
+  const response = await fetch("http://localhost:8081/viagem", {
+    method: "POST",
+    body: JSON.stringify({
+      idMotorista: identifier,
+      dataStart: dataStart,
+      origem: orig,
+      destino: dest,
+      horasStart : time,
+      precoTotal : preco_total,
+      status : "CONFIRMADO"
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8",
     },
-    secondary: {
-      main: '#fff',
-    },
-  },
-});
+  });
 
-
-  // const handleClick = searchViag => {
-
-  //   const data = {
-  //       'origem': origem,
-  //       'destino': destino,
-  //       'idMotorista': 123,
-  //       'dataStart': 1,
-  //   }
-  
-  //   fetch('http://localhost:8080/viagem', {
-  //       method: 'POST',
-  //       headers: {
-  //           'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify(data)
-  //   }).then(response => {
-  //       if (response.status === 200) {
-  //           alert('Viagens Encontradas: ')
-  //           setOpen(true)
-  //       }
-  //   }).catch(ex => {
-  //       alert('Erro ao achar viagens')
-  //       setOpen(true)
-  //   })
-  
-  // }
+  return response.json();
+};
 
   function Form() {
-
-  const [orig,setOrig] = useState("");
-  const [dest,setDest] = useState("");
-
-  const [distvalue, setDistValue] = React.useState(30);
-  
-
-  const handleSliderDistChange = (event, newValue) => {
-    setDistValue(newValue);
+    const [Loading,setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const [originText,setOriginText] = useState("");
+    const [dest,setDestText] = useState("");
     
-  };
-
-  const handleInputDistChange = (event) => {
-    setDistValue(event.target.value === '' ? '' : Number(event.target.value));
+    const [origin, setOrigin] = useState("");
+    const [destination, setDestination] = useState("");
+    const [directions, setDirections] = useState(null);
+    const [distance, setDistance] = useState(null);
     
-  };
+    const { data, isLoading, error } = useQuery("motorista", () => 
+    axios.get("http://localhost:8080/motorista").then((res) => res.data)
+    );
+    
+    const { mutate } = useMutation(CadastraViagem, {
+      onSuccess: () => {
+        setLoading(false);
+      },
+      onError: (error) => {
+        setLoading(false);
+      }
+    });
+    
+    
+    const { isLoaded, loadError } = useLoadScript({
+      googleMapsApiKey: "AIzaSyBV-zcj7u49pTK9S-JiayGv5g_4MIaofLo",
+      libraries,
+    });
+    
+    
+    const autocompleteOrigin = useRef(null);
+    const autocompleteDestination = useRef(null);
+    
+    const [loadingDialog, setLoadingDialog] = useState(false);
 
-  const handleDistBlur = () => {
-    if (value < 0) {
-      setDistValue(0);
+    const handleClickOpen = () => {
+      setLoadingDialog(true);  // Inicia o loading
+      console.log(originText,dest)
+      setTimeout(() => {
+        // Aqui você pode colocar o código que era executado anteriormente em handleClickOpen
+        if (error) return <Typography>Erro ao buscar motoristas</Typography>;
+        if (data === undefined) return <Typography>Não há motoristas disponíveis no momento</Typography>;
       
-    } else if (value > 100) {
-      setDistValue(100);
-      
-    }
-  };
+        setOpen(true);
+
+        setLoadingDialog(false);  // Finaliza o loading após 2 segundos
+      }, 1000);
+    };
+    
   
-  const [datetimevalue, setDateTimeValue] = React.useState(dayjs('2023-00-00T 00:00:00.000Z'));
+    const handleClose = () => {
+      setOpen(false);
+    };
+      
+  
+    useEffect(() => {
 
-  const [carregando,setCarregando] = useState(false);
+      if (origin && destination) {
+        setDirections(null); // Clears the previous directions result before getting new ones
+      }
+    }, [origin, destination]);
+    
+    const onLoadOrigin = (autocomplete) => {
+      autocompleteOrigin.current = autocomplete;
+      setOriginText(autocompleteDestination)
+    };
+  
+    const onLoadDestination = (autocomplete) => {
+      autocompleteDestination.current = autocomplete;
+      setDestText(autocompleteDestination)
+    };
+  
+    const onPlaceChangedOrigin = () => {
+      if (autocompleteOrigin.current) {
+        const place = autocompleteOrigin.current.getPlace();
+        setOrigin(place.geometry.location);
+      }
+    };
+  
+    const onPlaceChangedDestination = () => {
+      if (autocompleteDestination.current) {
+        const place = autocompleteDestination.current.getPlace();
+        setDestination(place.geometry.location);
+      }
+    };
+  
+    const directionsCallback = (response) => {
+      if (response !== null) {
+        if (response.status === "OK") {
+          setDirections(response);
+          setDistance(response.routes[0].legs[0].distance.text);
+        } else {
+          console.log("response: ", response);
+        }
+      }
+    };
+  
+    if (loadError) return "Erro ao carregar mapas";
+    if (!isLoaded) return "Carregando mapas";
 
-  const navigate = useNavigate();
-
+ 
+  
   const change = () => {
     setTimeout(() => {
-        navigate('/motorista',{
+        useNavigate('/novaviagem'),{
           state :{
-            datetimevalue,
-            distvalue,
-            orig,
-            dest
+            identifier: data[0].identifier
           }
-        })
+    }
     }, 1000);
     }
+  const handleConfirmClick = async () => {
+    setLoading(true);
+    change();
+
+    try {
+        mutate({ 
+            dataStart : `${dayjs().format('YYYY-MM-DD')}`,
+            orig : `${originText}`,
+            dest : `${dest}`,
+            time : `${dayjs().format('HH:mm:ss')}`,
+            preco_total: `${parseFloat(distance.match(/\d+(\.\d+)?/)[0]) * data[0].precoViagem}` ,
+            identifier : `${data[0].identifier}`
+        });
+    } catch (e) {
+        // Tratamento de erro aqui
+    }
+};
 
 
-  
 
   return (
     <>
-    {carregando ? <Carregando/> : 
-    
+     
+    {Loading ? <Carregando></Carregando>:
       <div className='container'>
         <Stack direction="column" spacing={2} >
-        <Box sx={{display:'flex',flexDirection:'column',gap:2,padding:10,width:700}} className='form' component={Paper}>
-            {/* <Map></Map> */}
-            <LocalizationProvider dateAdapter={AdapterDayjs} >
-            <DateTimePicker
-            renderInput={(params) => <TextField {...params} />}
-            value={datetimevalue}
-            onChange={(newValue) => {
-            setDateTimeValue(newValue);
-          }}
-          disablePast
-          label="Data e Hora"
-          inputFormat="DD/MM/YYYY HH:mm"
+        <Box sx={{display:'flex',flexDirection:'column',gap:5,padding:10,width:750}} className='form' component={Paper}>
+        <Stack direction="row" spacing={10}  >
+        <Autocomplete
+          onLoad={onLoadOrigin}
+          onPlaceChanged={onPlaceChangedOrigin}
+          fields={["geometry.location", "place_id"]}
+        >
+          <TextField
           
-        />
-      
-    </LocalizationProvider>
-    <Box sx={{ width: 250 }}>
-      <Typography id="input-slider" gutterBottom>
-        Distancia
-      </Typography>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item>
-          <NavigationIcon />
-        </Grid>
-        <Grid item xs>
-          <Slider
-            value={typeof value === 'number' ? value : 0}
-            onChange={handleSliderDistChange}
-            aria-labelledby="input-slider"
-            theme={theme}
+             placeholder='Digite um endereço de origem' variant="outlined"
+            
           />
-        </Grid>
-        <Grid item>
-          <Input
-            value={distvalue}
-            size="small"
-            onChange={handleInputDistChange}
-            onBlur={handleDistBlur}
-            inputProps={{
-              step: 10,
-              min: 0,
-              max: 100,
-              type: 'number',
-              'aria-labelledby': 'input-slider',
+        </Autocomplete>
+
+        <Autocomplete
+
+          onLoad={onLoadDestination}
+          onPlaceChanged={onPlaceChangedDestination}
+          fields={["geometry.location", "place_id"]}
+        >
+          <TextField
+          
+          
+            variant="outlined" placeholder='Digite um endereço de destino'
+          />
+        </Autocomplete>
+        </Stack>
+        <GoogleMap id="map" mapContainerStyle={mapContainerStyle} zoom={10} center={center}>
+        {origin !== "" && destination !== "" && (
+          <DirectionsService
+            options={{
+              destination: destination,
+              origin: origin,
+              travelMode: "DRIVING",
             }}
+            callback={directionsCallback}
           />
-        </Grid>
-      </Grid>
-    </Box>
-      <TextField value={orig} onChange={(e) => setOrig(e.target.value)}  color="success" id="Origem" label="Origem" variant="outlined" />
-      <TextField value={dest} onChange={(e) => setDest(e.target.value)}  color="success" id="Destino" label="Destino" variant="outlined" />
-      <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={() => {setCarregando(true); change();handleClickVariant('success')}}>
+        )}
+        {directions && <DirectionsRenderer directions={directions} />}
+      </GoogleMap>
+      
+    
+      <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={handleClickOpen }>
 
       <AddIcon></AddIcon>
-        Buscar Viagem
+        Buscar
       </Button>
+      
+       {loadingDialog && <Carregando />}
+      <Dialog
+        fullScreen={fullScreen}
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="responsive-dialog-title"
+      >
+   {isLoading && <Carregando />}
+    {error && <Typography>Erro ao buscar motoristas</Typography>}
+    
+    {data === null && <Typography>Não há motoristas disponíveis no momento</Typography>}
+    {data && distance &&
+    <>
+        <DialogTitle id="responsive-dialog-title">
+            {"Motorista Encontrado"}
+        </DialogTitle>
+        <DialogContent>
+            <DialogContentText>
+                <Stack direction="column" spacing={3}>
+                <Stack direction="row" spacing={1}>
+                <AccountCircleIcon >
+                </AccountCircleIcon>
+                <Typography>
+                        {data[0].name}
+                    </Typography>
+                </Stack>
+                <Stack direction="row" spacing={1}>
+                <LocalTaxiIcon >
+                </LocalTaxiIcon>
+                <Typography>
+                        {data[0].modelo}
+                    </Typography>
+                </Stack>
+                    
+                    
+                <Stack direction="row" spacing={1}>
+                <AttachMoneyIcon >
+                </AttachMoneyIcon>
+                <Typography>
+                  {parseFloat(distance.match(/\d+(\.\d+)?/)[0]) * data[0].precoViagem} 
+                    </Typography>
+                </Stack>
+                    
+                </Stack>
+            </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+            <Button autoFocus onClick={handleClose}>
+                Cancelar
+            </Button>
+            <Button onClick={handleConfirmClick} autoFocus>
+                Confirmar
+            </Button>
+        </DialogActions>
+    </>}
+      </Dialog> 
         </Box>
         </Stack>
         </div>
-        
     }
     </>
     

@@ -5,7 +5,6 @@ import Home from './components/Home.jsx'
 import './index.css'
 import Viagem from './Viagem.jsx'
 import Carregando from './Carregando.jsx'
-import Motorista from './Motorista.jsx'
 import NovaViagem from './NovaViagem.jsx'
 import { Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -37,10 +36,10 @@ const router = createBrowserRouter([
     path: "carregando",
     element: <Carregando/>,
   },
-  {
-    path: "motorista",
-    element: <Motorista/>,
-  },
+  // {
+  //   path: "motorista",
+  //   element: <Motorista/>,
+  // },
   {
     path: "novaviagem",
     element: <NovaViagem/>,

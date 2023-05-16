@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { GoogleMap, DirectionsService, DirectionsRenderer } from "@react-google-maps/api";
+import React, { useState, useEffect } from 'react';
+import { GoogleMap, LoadScript, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
 
-const mapContainerStyle = {
-  width: "100%",
-  height: "80vh",
-};
+const libraries = ["places"];
 
-const zoom = 15;
-
-function Map({ currentPosition, markerPosition }) {
+const MapComponent = ({origin, destination}) => {
   const [directions, setDirections] = useState(null);
   const [distance, setDistance] = useState(null);
 
@@ -24,31 +19,50 @@ function Map({ currentPosition, markerPosition }) {
   };
 
   useEffect(() => {
-    if (currentPosition && markerPosition) {
-      setDirections(null); // Clears the previous directions result before getting new ones
+    if (origin !== "" && destination !== "") {
+      const DirectionsService = new window.google.maps.DirectionsService();
+  
+      DirectionsService.route(
+        {
+          origin: origin,
+          destination: destination,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === window.google.maps.DirectionsStatus.OK) {
+            setDirections(result);
+            setDistance(result.routes[0].legs[0].distance.text);
+          } else {
+            console.error(`error fetching directions ${result}`);
+          }
+        }
+      );
     }
-  }, [currentPosition, markerPosition]);
+  }, [origin, destination]);
 
   return (
-    <GoogleMap
-      id="map"
-      mapContainerStyle={mapContainerStyle}
-      zoom={zoom}
-      center={currentPosition}
-    >
-      {currentPosition && markerPosition && (
-        <DirectionsService
-          options={{
-            destination: markerPosition,
-            origin: currentPosition,
-            travelMode: "DRIVING",
-          }}
-          callback={directionsCallback}
-        />
-      )}
-      {directions && <DirectionsRenderer directions={directions} />}
-    </GoogleMap>
+    <LoadScript googleMapsApiKey="AIzaSyBV-zcj7u49pTK9S-JiayGv5g_4MIaofLo" libraries={libraries}>
+      <GoogleMap
+        id="direction-example"
+        mapContainerStyle={{
+          height: "400px",
+          width: "100%"
+        }}
+        zoom={14}
+        center={origin}
+      >
+        {
+          directions &&
+          <DirectionsRenderer
+            // required
+            options={{
+              directions: directions
+            }}
+          />
+        }
+      </GoogleMap>
+    </LoadScript>
   );
 }
 
-export default Map;
+export default MapComponent;

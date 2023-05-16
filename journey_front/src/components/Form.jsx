@@ -1,14 +1,13 @@
 import {Button, Typography, Stack, TextField,Paper,Box,useMediaQuery,Dialog,DialogActions,DialogContent,DialogTitle,DialogContentText,Snackbar,Alert} from '@mui/material'
 import React from 'react';
 import AddIcon from '@mui/icons-material/Add';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef ,useReducer} from 'react';
 import Carregando from '../Carregando';
 import dayjs from 'dayjs';
 import { useLoadScript, Autocomplete,GoogleMap, DirectionsService, DirectionsRenderer } from "@react-google-maps/api";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import theme from '../theme/theme';
-import axios from "axios";
 import {useQuery,useMutation} from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import LocalTaxiIcon from '@mui/icons-material/LocalTaxi';
@@ -16,8 +15,10 @@ import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import axios from 'axios';
 
 const libraries = ["places"];
+
 const center = {
   lat: -23.5505,
   lng: -46.6333,
@@ -48,19 +49,35 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     headers: {
       "Content-type": "application/json; charset=UTF-8",
     },
+    
   });
 
-  return response.json();
+  const responseData = await response.json();
+  return responseData;
 };
+// const OcupaMotorista = async (identifier) => {
+  
+//   const response = await fetch(`http://localhost:8081/motorista/${identifier}/ocupacao/ocupa`, {
+//     method: "POST",
+//     headers: {
+//       "Content-type": "application/json; charset=UTF-8",
+//     },
+    
+//   });
+
+//   const responseData = await response.json();
+//   return responseData;
+// };
 
   function Form() {
-
     
     const [Loading,setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const [originText,setOriginText] = useState("");
-    const [dest,setDestText] = useState("");
+    const [originText, setOriginText] = useState("");
+  const [dest, setDestText] = useState("");
+  const [prevOrigin, setPrevOrigin] = useState(null);
+  const [prevDest, setPrevDest] = useState(null);
     const [time,setTime] = useState("");
     const [alertOpen,setAlertOpen] = useState(false);
     
@@ -70,74 +87,94 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     const [distance, setDistance] = useState(null);
     const [mutateError,setMutateError] = useState("");
     
+    
+
     const { data, isLoading, error } = useQuery("motorista", () => 
-    axios.get("http://localhost:8080/motorista/available").then((res) => res.data)
+    axios.get("http://localhost:8080/motorista").then((res) => res.data)
     );
     
+
     const navigate = useNavigate();
-    const change = () => {
+    const change = (id) => {
       setOpen(false);
       setLoadingDialog(true);
       setTimeout(() => {
-          navigate('/novaviagem'),{
+          navigate('/novaviagem',{
             state :{
               motoristaId: data[0].identifier,
-              
+              viagemId: id
             }
-      }
+      })
       }, 2000);
       }
-    
+
     const { mutate } = useMutation(CadastraViagem, {
-      onSuccess: () => {
+      onSuccess: (responseData) => {
         setLoading(false);
-        change();
+        change(responseData.id);
       },
       onError: (error) => {
         setLoading(false);
         setAlertOpen(true);
         setMutateError(error.message);
-      console.log(error);
       }
     });
-    
+
+    // const { mutate1 } = useMutation(OcupaMotorista)
     
     const { isLoaded, loadError } = useLoadScript({
       googleMapsApiKey: "AIzaSyBV-zcj7u49pTK9S-JiayGv5g_4MIaofLo",
       libraries,
     });
     
-    
     const autocompleteOrigin = useRef(null);
     const autocompleteDestination = useRef(null);
-    
+     
     const [loadingDialog, setLoadingDialog] = useState(false);
 
-
     const handleClickOpen = () => {
-      setLoadingDialog(true);  // Inicia o loading
-      
-      setTimeout(() => {
-        // Aqui você pode colocar o código que era executado anteriormente em handleClickOpen
-        
-      
+      setLoadingDialog(true); 
+      setTimeout(() => { 
         setOpen(true);
-
-        setLoadingDialog(false);  // Finaliza o loading após 2 segundos
-      }, 500);
+        setLoadingDialog(false);  
+      }, 1000);
     };
     
   
     const handleClose = () => {
       setOpen(false);
 
-    };
+    };  
 
     const handleAlertClose = () => {
       setAlertOpen(false);
     }
       
+    // const fetchMotorista = async () => {
+    //   const response = await fetch("http://localhost:8080/motorista/available");
+    //   const data = response.data;
+    //   console.log(data);
+    //   setRealData(data);
+    // }
+    
+    // useEffect(() => {
+    //   if (!isDataFetched) {
+    //     const fetchMotorista = async () => {
+    //       try {
+    //         const response = await axios.get("http://localhost:8080/motorista/available");
+    //         const data = response.data;
+    //         setRealData(data);
+    //         setIsDataFetched(true);
+    //       } catch (error) {
+    //         // Tratamento de erro aqui
+    //         console.error(error);
+    //       }
+    //     };
   
+    //     fetchMotorista();
+    //   }
+    // }, [isDataFetched]);
+
     useEffect(() => {
 
       if (origin && destination) {
@@ -147,27 +184,29 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     
     const onLoadOrigin = (autocomplete) => {
       autocompleteOrigin.current = autocomplete;
-      
     };
   
     const onLoadDestination = (autocomplete) => {
       autocompleteDestination.current = autocomplete;
-      
     };
   
     const onPlaceChangedOrigin = () => {
       if (autocompleteOrigin.current) {
         const place = autocompleteOrigin.current.getPlace();
-        
-        setOrigin(place.geometry.location);
+        if (place.geometry.location !== prevOrigin) {
+          setOrigin(place.geometry.location);
+          setPrevOrigin(place.geometry.location);
+        }
       }
     };
   
     const onPlaceChangedDestination = () => {
       if (autocompleteDestination.current) {
         const place = autocompleteDestination.current.getPlace();
-        
-        setDestination(place.geometry.location);
+        if (place.geometry.location !== prevDest) {
+          setDestination(place.geometry.location);
+          setPrevDest(place.geometry.location);
+        }
       }
     };
   
@@ -191,8 +230,6 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
   
   const handleConfirmClick = async () => {
     
-    
-  
     try {
         mutate({ 
             dataStart : `${dayjs().format('YYYY-MM-DD')}`,
@@ -203,12 +240,11 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
             preco_total: parseFloat(distance.match(/\d+(\.\d+)?/)[0]) * data[0].precoViagem ,
             identifier : `${data[0].identifier}`
         });
+        // mutate1(`${data[0].identifier}`)
     } catch (e) {
         // Tratamento de erro aqui
     }
 };
-
-
 
   return (
     <>
@@ -223,7 +259,7 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
       </Snackbar>}
         <Stack direction="column" spacing={2} >
         <Box sx={{display:'flex',flexDirection:'column',gap:5,padding:10,width:750}} className='form' component={Paper}>
-        <Stack sx={{alignItems:"center"}} direction="row" spacing={5}  >
+        <Stack sx={{alignItems:"center"}} direction="row" spacing={4}  >
         <Autocomplete
           onLoad={onLoadOrigin}
           onPlaceChanged={onPlaceChangedOrigin}
@@ -267,7 +303,7 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
       </GoogleMap>
       
     
-      <Button type="submit" theme={theme} variant='contained' className='buscando' onClick={handleClickOpen }>
+      <Button size='large' type="submit" theme={theme} variant='contained' className='buscando' onClick={handleClickOpen }>
 
       <AddIcon></AddIcon>
         Buscar
@@ -284,12 +320,12 @@ const CadastraViagem = async ({dataStart, orig, dest, horasStart,tempoTotal, pre
     
     <>
         <DialogTitle id="responsive-dialog-title">
-            {!data && directions ? "Motorista não encontrado" : directions && data ? "Motorista Encontrado" : "Dados inválidos"}
+            {!data || data === undefined && directions ? "Motorista não encontrado" : directions && data ? "Motorista Encontrado" : "Dados inválidos"}
         </DialogTitle>
         <DialogContent>
             <DialogContentText>
-   {isLoading && <Carregando />}
-    {error && <Typography>Erro ao buscar motoristas</Typography>}
+   
+    
     {!directions || !distance ? <Typography>Digite os endereços de origem e destino para poder buscar por um motorista</Typography> :
     
     !data ? <Typography>Não há motoristas disponíveis no momento</Typography> :

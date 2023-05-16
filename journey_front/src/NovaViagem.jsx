@@ -2,9 +2,8 @@ import './Motorista.css'
 import React from 'react';
 import NavBar2 from './components/NavBar2';
 import { Paper, Typography,Box,Button ,Card,CardMedia,CardActionArea,CardContent,CardActions,Snackbar,Alert} from '@mui/material';
-import { useLocation } from 'react-router-dom';
+import { useLocation,useNavigate,Link } from 'react-router-dom';
 import { useMutation,useQuery } from 'react-query';
-import axios from 'axios';
 import { useState } from 'react';
 import Carregando from './Carregando';
 
@@ -13,9 +12,9 @@ const AlertSnack = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const FinalizarViagem = async ({viagemId}) => {
+const FinalizarViagem = async (viagemId) => {
   
-  const response = await fetch(```http://localhost:8081/viagem/${viagemId}/cancel```, {
+  const response = await fetch(`http://localhost:8081/viagem/${viagemId}/cancel`, {
     method: "PUT",
     headers: {
       "Content-type": "application/json; charset=UTF-8",
@@ -25,26 +24,26 @@ const FinalizarViagem = async ({viagemId}) => {
   return response.json();
 };
 
-const statusMotorista = async ({motoristaId}) => {
+// const statusMotorista = async (motoristaId) => {
   
-  const response = await fetch(```http://localhost:8080/motorista/${motoristaId}/ocupacao```, {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json; charset=UTF-8",
-    },
-  });
+//   const response = await fetch(`http://localhost:8080/motorista/${motoristaId}/ocupacao`, {
+//     method: "POST",
+//     headers: {
+//       "Content-type": "application/json; charset=UTF-8",
+//     },
+//   });
 
-  return response.json();
-};
-
-
+//   return response.json();
+// };
 
 function NovaViagem() {
 
   const location = useLocation();
+  
   const [open,setOpen] = useState(false);
   const [loading,setLoading] = useState();
-  const { motoristaId } = location.state || {};
+  const {motoristaId,viagemId}  = location.state  || {};
+  console.log(motoristaId,viagemId)
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -53,13 +52,7 @@ function NovaViagem() {
     setOpen(false);
   };
 
-  const { data, isLoading, error } = useQuery("motorista", () => 
-    axios.get(```http://localhost:8080/viagem/${motoristaId}/confirmado```).then((res) => res.data)
-    );
-
-  
-
-  const { mutate1 } = useMutation(FinalizarViagem, {
+  const { mutate } = useMutation(FinalizarViagem, {
     onSuccess: () => {
       setLoading(false);
     },
@@ -68,28 +61,27 @@ function NovaViagem() {
     }
   });
 
-  const { mutate2 } = useMutation(statusMotorista, {
-    onSuccess: () => {
-      setLoading(false);
-    },
-    onError: (error) => {
-      setLoading(false);
-    }
-  });
+  // const { mutate2 } = useMutation(statusMotorista, {
+  //   onSuccess: () => {
+  //     setLoading(false);
+  //   },
+  //   onError: (error) => {
+  //     setLoading(false);
+  //   }
+  // });
+
   const handleConfirmClick = async () => {
     setOpen(true);
   
-    try {
-      if (motoristaId) {
-        mutate1({ 
-          viagemId: data.viagemId
-        });
-        mutate2({
-          motoristaId: motoristaId
-        })}
-    } catch (e) {
+    
+      
+    mutate(viagemId);
+    // mutate2(motoristaId);
+      
+    
+    
         // Tratamento de erro aqui
-    }
+    
 };
 
     
@@ -100,7 +92,6 @@ function NovaViagem() {
         <div className='teste'>
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-
           Viagem Finalizada com Sucesso!
         </Alert>
         </Snackbar>
@@ -119,8 +110,9 @@ function NovaViagem() {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button onClick={handleConfirmClick} variant='outlined' color="error" size="small">Finalizar Viagem</Button>
-        
+      <Link to='/listaviagem'>
+        <Button onClick={handleConfirmClick} variant='outlined' color="error" size="large">Finalizar Viagem</Button>
+        </Link>
       </CardActions>
     </Card>
         </div> }

@@ -6,6 +6,7 @@ import './index.css'
 import Viagem from './Viagem.jsx'
 import Carregando from './Carregando.jsx'
 import NovaViagem from './NovaViagem.jsx'
+import ListaViagem from './ListaViagem.jsx'
 import { Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
@@ -43,8 +44,11 @@ const router = createBrowserRouter([
   {
     path: "novaviagem",
     element: <NovaViagem/>,
+  },
+  {
+    path: "listaviagem",
+    element: <ListaViagem/>,
   }
-  
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(

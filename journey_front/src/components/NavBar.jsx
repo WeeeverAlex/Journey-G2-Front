@@ -29,6 +29,12 @@ export default function () {
         Começar viagem
       </Button>
       </Link>
+      <Link to='/listaviagem'>
+      <Button sx={{gap:1,marginRight:5}} theme={theme} variant='contained'>
+      <AddIcon></AddIcon>
+        Lista viagens
+      </Button>
+      </Link>
       
       </AppBar>
     )

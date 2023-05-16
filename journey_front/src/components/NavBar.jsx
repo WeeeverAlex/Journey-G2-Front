@@ -20,21 +20,16 @@ const theme = createTheme({
 export default function () {
 
     return (
-        <AppBar sx={{display:'flex',flexDirection:'row',justifyContent:'space-between',background:'white',padding:2}} >
-        
-        <Button sx={{marginLeft:5}} theme={theme} variant='contained'>
-        
-          Journey
-        
-        </Button>
-        
+      <AppBar sx={{display:'flex',flexDirection:'row',justifyContent:'space-between',background:'white',padding:2}} >
+          <img  src="/logo.png" alt="logo" className='logo' style={{width:'100px', height:'50px'}}/>
+      
       <Link to='/viagem'>
       <Button sx={{gap:1,marginRight:5}} theme={theme} variant='contained'>
       <AddIcon></AddIcon>
         Começar viagem
       </Button>
       </Link>
-        </AppBar>
-        
+      
+      </AppBar>
     )
 }
